@@ -119,7 +119,6 @@ def Rc4_key(key, text, cipher = 0):
     decrypted =" "
     try:
         decrypted = decrypt(key, text)
-        print(11111111111)
     except:
         pass
     #print('decrypted:', decrypted)

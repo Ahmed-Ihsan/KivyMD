@@ -6,7 +6,7 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from GBS.GBS import location
-from AESA.AESA import enc, dec_
+from AESA.AESA import enc, dec_d
 from key.RC4 import Rc4_key , decrypt
 from HiddenText.image_hidden import hidden, save, reveal
 
@@ -28,9 +28,10 @@ def send_ (text):
     le = location()
     print(le[1])
 
-    en = enc(le[1])
+    en = enc(text,str(le[1][0]) + str(le[1][1]))
     res = json.loads(en)
     print("AES: ",res)
+
     rc4 = Rc4_key(res['iv'], text, True)
     print('RC4: '+rc4)
 
@@ -74,8 +75,8 @@ def read(a1 =1):
 
     dic_ = {'iv':res+'==', 'ciphertext':rc4[2]}
     print(dic_)
-    x= dec_(dic_)
-
+    x= dec_d(dic_ , rc4[3] )
+    print(x)
     text = decrypt(res+"==" , rc4[0] )
     print(text)
 

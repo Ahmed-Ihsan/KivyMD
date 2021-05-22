@@ -5,14 +5,86 @@ from kivymd.app import MDApp
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 import json
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.textinput import TextInput
 from GBS.GBS import location
-from AESA.AESA import enc, dec_
+from AESA.AESA import enc, dec_d
 from key.RC4 import Rc4_key , decrypt
 from HiddenText.image_hidden import hidden, save, reveal
+
+image = None
+path_ = ''
+def listToString(s): 
+    string_ = ''
+    for char in s:
+        string_ = string_ + char  
+    string_ = string_.replace('\'', '')
+    string_ = string_.replace(',', '')
+    string_ = string_.replace(']', '')
+    string_ = string_.replace('[', '')
+    string_ = string_.replace(' ', '')
+    return string_
+
+def str_path(path):
+    path = path.replace('\\', "\\\\")
+    return path
+
+def send_ (text):
+    global image, path_
+    le = location()
+    print(le[1])
+    en = enc(text,str(le[1][0]) + str(le[1][1]))
+    res = json.loads(en)
+    print("AES: ",res)
+
+    rc4 = Rc4_key(res['iv'], text, True)
+    print('RC4: '+rc4)
+
+    arr=[]
+    for i in reversed(res['iv']):
+        arr.append(i)
+
+    res_ = listToString(arr)
+    #print(res)
+
+    string_ = str(rc4) + res_ +'=='+res['ciphertext']
+    print(string_)
+    print(path_)
+    #path = json.loads(str_path(path))
+    image = hidden(path_,string_)
+    
+    return 0
+
+def save_():
+    global image , path_
+    print('save image')
+    save(path_,image)
+    return 0
+
+def read():
+    global path_
+    le = location()
+    print(le[1])
+
+    rc4 = reveal(path_)
+    print("read from image: ", rc4)
+
+    rc4=listToString(rc4)
+    rc4 = rc4.split('==')
+    print(rc4)
+    
+    arr=[]
+    for i in reversed(rc4[1]):
+        arr.append(i)
+    res = listToString(arr)
+    #print(res)
+
+    dic_ = {'iv':res+'==', 'ciphertext':rc4[2]}
+    print(dic_)
+    x= dec_d(dic_ , rc4[2])
+    print(x)
+    text = decrypt(res+"==" , rc4[0] )
+    print(text)
+
+    return 0
 
 KV = '''
 Screen:
@@ -34,16 +106,15 @@ Screen:
                         spacing: dp(10)
                         padding: dp(20)
                         MDIconButton:
-                            icon: 'magnify'
+                            icon: 'textbox'
                             pos_hint: {'center_y': .9}
                         MDTextField:
+                            id: inptext
                             icon_left : 'magnify'
                             hint_text: "Enter Text"
                             helper_text: "one line only"
                             helper_text_mode: "on_focus"
-                            on_text: root.set_list_md_icons(self.text, True)
                             pos_hint: {'center_x': .5, 'center_y': .9}
-
                     MDRoundFlatIconButton:
                         text: "Open manager"
                         icon: "folder"
@@ -52,17 +123,22 @@ Screen:
                     MDRoundFlatIconButton:
                         text: "Run AES & RC4"
                         icon: "worker"
-                        pos_hint: {'center_x': .5, 'center_y': .55}
-                        on_release: app.file_manager_open()
+                        pos_hint: {'center_x': .5, 'center_y': .65}
+                        on_release: app.button_(inptext.text)
                     MDRoundFlatIconButton:
                         text: "Save Image"
                         icon: "content-save-outline"
-                        pos_hint: {'center_x': .5, 'center_y': .65}
-                        on_release: app.file_manager_open()
+                        pos_hint: {'center_x': .5, 'center_y': .55}
+                        on_release: app.save_images()
+                    MDRoundFlatIconButton:
+                        text: "Read Image"
+                        icon: "read"
+                        pos_hint: {'center_x': .5, 'center_y': .45}
+                        on_release: app.read_text()  
                     MDRoundFlatIconButton:
                         text: "Send Image"
                         icon: "send"
-                        pos_hint: {'center_x': .5, 'center_y': .45}
+                        pos_hint: {'center_x': .5, 'center_y': .35}
                         on_release: app.file_manager_open()             
 
             MDNavigationDrawer:
@@ -102,7 +178,24 @@ class Example(MDApp):
 
         self.exit_manager()
         toast(path)
-        print(path)
+        global path_
+        path_ = path
+        print(path_)
+
+    def exit_manager(self, *args):
+        '''Called when the user reaches the root of the directory tree.'''
+
+        self.manager_open = False
+        self.file_manager.close()
+    
+    def button_(self,te):
+        send_ (te)
+
+    def save_images(self):
+        save_()
+
+    def read_text(self):
+        read()
 
     def exit_manager(self, *args):
         '''Called when the user reaches the root of the directory tree.'''
