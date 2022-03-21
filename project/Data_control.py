@@ -54,10 +54,13 @@ def login(user= None , id = None):
 def add(ID = None,name = None, Age = None, Number_Phone = None, Adress = None,result = None):
     global Data
     try:
-        input = pd.DataFrame({'ID':[ID],'Nmae':[name],'Age':[Age],'Number Phone':[Number_Phone],'Adress':[Adress],'result':[result]})
-        Data = Data.append(input)
-        input.to_csv('Data.csv',mode='a',header=False,index=False)
-        return 1
+        res = Data[Data['ID']=='ID']
+        if len(res) != 0:
+            input = pd.DataFrame({'ID':[ID],'Nmae':[name],'Age':[Age],'Number Phone':[Number_Phone],'Adress':[Adress],'result':[result]})
+            Data = Data.append(input)
+            input.to_csv('Data.csv',mode='a',header=False,index=False)
+            return 1
+        return 0
     except:
         print('12D')
         return 0
@@ -66,5 +69,38 @@ def delete():
     pass
 def edite():
     pass
-def search():
-    pass
+
+def search(key=None, word=None ):
+    s = word[0]
+    if key is None:
+        if type(s) is str:
+            pass
+        else:
+            print('12W')
+            if word is None:
+                print('12L')
+                return 0
+            word = str(s)
+        for i in ['ID','Nmae','Age','Number Phone','Adress','result']:
+            reslt = Data[Data[i] == s]
+            if  len(reslt) >= 1 :
+                return reslt
+        return 0
+    else:
+        reslt = Data[Data[key]== s]
+        if not reslt is None :
+            return reslt
+        return 0
+
+def show_data():
+    return Data
+
+def remove_data(data):
+    if type(data) is str:  
+        Data.drop(Data[Data['ID'] == data].index, inplace = True)
+        header_libel = pd.DataFrame({'ID':[],'Nmae':[],'Age':[],'Number Phone':[],'Adress':[],'result':[]})
+        header_libel.to_csv('Data.csv',index=False)
+        Data.to_csv('Data.csv',mode='a',header=False,index=False)
+        return 1
+    return 'Error , the value is not string'
+

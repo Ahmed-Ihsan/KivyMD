@@ -4,6 +4,9 @@ from kivymd.app import MDApp
 from kivy.uix.boxlayout import BoxLayout
 from Data_control import *
 from kivy.uix.screenmanager import Screen ,ScreenManager
+from kivymd.uix.label import MDLabel 
+from kivymd.uix.button import MDFloatingActionButton
+from kivymd.font_definitions import theme_font_styles
 
 Window.size = (600, 300)
 
@@ -14,6 +17,12 @@ class Seconde_screen(Screen):
     pass
 
 class Three_screen(Screen):
+    pass
+
+class Fourth_screen(Screen):
+    pass
+
+class Show_screen(Screen):
     pass
 
 class ContentNavigationDrawer(BoxLayout):
@@ -168,19 +177,56 @@ Builder.load_string('''
     MDRoundFlatIconButton:
         text: "Delete"
         pos_hint: {'center_x': .38, 'center_y': .25}
-        on_release: app.move('screen1')
+        on_release: app.remove_item(ID.text)
     MDRoundFlatIconButton:
         text: "Search"
         pos_hint: {'center_x': .61, 'center_y': .25}
-        on_release: app.move('screen1')
+        on_release: app.move('screen4')
     MDRoundFlatIconButton:
         text: "Show"
         pos_hint: {'center_x': .84, 'center_y': .25}
-        on_release: app.move('screen1')
+        on_release: app.show()
     MDNavigationDrawer:
         id: nav_drawer
 
         ContentNavigationDrawer:
+
+<Fourth_screen>:
+    name: 'screen4'
+    BoxLayout: 
+        padding: dp(20)
+        MDTextField:
+            id:search
+            hint_text: "Input Text"
+            mode: "rectangle"
+            fill_color: 0, 0, 200, .4
+            pos_hint: {'center_y': .95}
+
+    MDRoundFlatIconButton:
+        text: "Search"
+        pos_hint: {'center_x': .6,'center_y': .8}
+        on_release: on_release: app.search(box , search.text)
+    MDRoundFlatIconButton:
+        text: "Back"
+        pos_hint: {'center_x': .3,'center_y': .8}
+        on_release: on_release: app.move('screen3')
+
+    ScrollView:
+        pos_hint: {'center_x': .8, 'center_y': .25}
+        MDList:
+            id:box
+            
+<Show_screen>:
+    name: 'screen5'
+    MDRoundFlatIconButton:
+        text: "Back"
+        pos_hint: {'center_x': .3,'center_y': .9}
+        on_release: on_release: app.move('screen3')
+    ScrollView:
+        pos_hint: {'center_x': .7, 'center_y': .25}
+        MDList:
+            id:box2
+           
 ''')
 
 class Main_app(MDApp):
@@ -189,6 +235,8 @@ class Main_app(MDApp):
         self.sm.add_widget(First_screen(name='screen1'))
         self.sm.add_widget(Seconde_screen(name='screen2'))
         self.sm.add_widget(Three_screen(name='screen3'))
+        self.sm.add_widget(Fourth_screen(name='screen4'))
+        self.sm.add_widget(Show_screen(name='screen5'))
         return self.sm
     
     def user_login(self,*Data):
@@ -212,6 +260,7 @@ class Main_app(MDApp):
 
     def move(self,screen):
         self.sm.current = screen
+        
 
     def insert(self,*Data):
         if not "" in Data:
@@ -219,6 +268,41 @@ class Main_app(MDApp):
            print(chak)
         else:
             print('13A')
+    
+    def search(self,box,sch):
+        sch = sch.split(":")
+        if len(sch)> 1:
+            res = search(sch[0],sch[1]).values
+            print(res)
+        else:
+            res = search(None , sch).values
+        for val in res:
+            box.add_widget(
+                MDLabel(
+                    text=f'''ID  : {val[0]} || Name : {val[1]} || Age : {val[3]} || Number Phone : {val[1]} 
+                Adress  : {val[1]} || result : {val[1]}
+________________________________________________________
+                    '''
+                )
+            )
+    def show(self):
+        self.sm.current = "screen5"
+        box = self.sm.get_screen("screen5").ids.box2
+        reslt = show_data().values
+        reslt = reslt[::-1]
+        for val in reslt:
+            box.add_widget(
+                MDLabel(
+                    text=f'''ID  : {val[0]} || Name : {val[1]} || Age : {val[3]} || Number Phone : {val[1]} 
+                Adress  : {val[1]} || result : {val[1]}
+________________________________________________________
+                    '''
+                )
+                
+            )
+           
+    def remove_item(self,data):
+        print(remove_data(data))
 
 def Main():
     Main_app().run()
