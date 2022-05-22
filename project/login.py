@@ -175,9 +175,9 @@ Builder.load_string('''
         pos_hint: {'center_x':0.15, 'center_y': .25}
         on_release: app.insert(ID.text,Name.text,age.text,number.text,address.text,result.text)
     MDRoundFlatIconButton:
-        text: "Delete"
+        text: "Edite"
         pos_hint: {'center_x': .38, 'center_y': .25}
-        on_release: app.remove_item(ID.text)
+        on_release: app.edite_set(ID.text,Name.text,age.text,number.text,address.text,result.text)
     MDRoundFlatIconButton:
         text: "Search"
         pos_hint: {'center_x': .61, 'center_y': .25}
@@ -241,9 +241,9 @@ class Main_app(MDApp):
     
     def user_login(self,*Data):
         if not "" in Data:
-            chak = login(Data[1],Data[0])
-            print(chak)
-            if chak :
+            check = login(Data[1],Data[0])
+            print(check)
+            if check :
                 Window.size = (700, 500)
                 self.sm.current = 'screen3'
             else:
@@ -253,8 +253,8 @@ class Main_app(MDApp):
     
     def user_sign(self,*Data):
         if not "" in Data:
-            chak = sign(Data[1], Data[0])
-            print(chak)
+            check = sign(Data[1], Data[0])
+            print(check)
         else:
             pass
 
@@ -264,8 +264,8 @@ class Main_app(MDApp):
 
     def insert(self,*Data):
         if not "" in Data:
-           chak = add(Data[0], Data[1], Data[2], Data[3], Data[4], Data[5])
-           print(chak)
+           check = add(Data[0], Data[1], Data[2], Data[3], Data[4], Data[5])
+           print(check)
         else:
             print('13A')
     
@@ -303,6 +303,13 @@ ________________________________________________________
            
     def remove_item(self,data):
         print(remove_data(data))
+    
+    def edite_set(self,*Data):
+        if not "" in Data:
+            check = edite(Data[0], Data[1], Data[2], Data[3], Data[4], Data[5])
+            print(check)
+        else:
+            print('13M')
 
 def Main():
     Main_app().run()
