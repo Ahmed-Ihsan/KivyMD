@@ -1,0 +1,5 @@
+Name: Kivy
+Version: 2.0.0
+--------------------
+Name: Kivymd
+Version: 0.104.1
