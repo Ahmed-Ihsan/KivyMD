@@ -4,13 +4,13 @@ try:
     Data = pd.read_csv('Data.csv')
 except:
     Data = pd.DataFrame({'ID':[],'Nmae':[],'Age':[],'Number Phone':[],'Adress':[],'result':[]})
-    Data.to_csv('Data.csv',index=False)
+    Data.to_csv('Data.csv')
 
 try:
    User = pd.read_csv('User.csv')
 except:
     User = pd.DataFrame({'Name':[],'ID':[]})
-    User.to_csv('User.csv',index=False)
+    User.to_csv('User.csv')
 
 def sign(user= None , id = None ):
     global User
@@ -20,12 +20,12 @@ def sign(user= None , id = None ):
     except:
         input = pd.DataFrame({'Name':[user],'ID':[id]})
         User = User.append(input)
-        input.to_csv('User.csv',mode='a',header=False,index=False)        
+        input.to_csv('User.csv',mode='a',header=False,index=True)        
         return 1
     if not user in user_sin :
         input = pd.DataFrame({'Name':[user],'ID':[id]})
         User = User.append(input)
-        input.to_csv('User.csv',mode='a',header=False,index=False)
+        input.to_csv('User.csv',mode='a',header=False,index=True)
         return 1
     else:
         print('12E')
@@ -54,22 +54,26 @@ def login(user= None , id = None):
 def add(ID = None,name = None, Age = None, Number_Phone = None, Adress = None,result = None):
     global Data
     try:
-        res = Data[Data['ID']=='ID']
-        if len(res) != 0:
-            input = pd.DataFrame({'ID':[ID],'Nmae':[name],'Age':[Age],'Number Phone':[Number_Phone],'Adress':[Adress],'result':[result]})
-            Data = Data.append(input)
-            input.to_csv('Data.csv',mode='a',header=False,index=False)
+        res = Data[Data['ID']==ID]
+        if len(res) == 0:
+            input = pd.DataFrame({'ID':[str(ID)],'Nmae':[name],'Age':[Age],'Number Phone':[Number_Phone],'Adress':[Adress],'result':[result]})
+            print(input)
+            print(Data)
+            Data = pd.concat([input, Data],ignore_index=True)
+            Data.to_csv('Data.csv')
             return 1
         return 0
     except:
         print('12D')
         return 0
 
-def delete():
-    pass
-def edite():
-    pass
-
+def edite(ID = None,name = None, Age = None, Number_Phone = None, Adress = None,result = None):
+    global Data
+    res = Data[Data['ID'] == str(ID)].index
+    for i in [(ID,'ID'),(name,'Nmae'), (Age,'Age'), (Number_Phone,'Number Phone'), (Adress,'Adress'),(result,'result')]:
+        Data.loc[res, i[1]] = i[0]
+    Data.to_csv('Data.csv')
+    
 def search(key=None, word=None ):
     s = word[0]
     if key is None:
@@ -97,10 +101,9 @@ def show_data():
 
 def remove_data(data):
     if type(data) is str:  
-        Data.drop(Data[Data['ID'] == data].index, inplace = True)
+        Data.drop(Data[Data['ID'] == data].index,inplace = True)
         header_libel = pd.DataFrame({'ID':[],'Nmae':[],'Age':[],'Number Phone':[],'Adress':[],'result':[]})
-        header_libel.to_csv('Data.csv',index=False)
-        Data.to_csv('Data.csv',mode='a',header=False,index=False)
+        header_libel.to_csv('Data.csv',index=True)
+        Data.to_csv('Data.csv',mode='a',header=False,index=True)
         return 1
     return 'Error , the value is not string'
-
